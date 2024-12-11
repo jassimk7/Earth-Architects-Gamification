@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Architects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        #scenario-selection {
+            text-align: center;
+        }
+
+        .scenarios {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .scenario {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .scenario:hover {
+            background-color: #45a049;
+        }
+
+        #gameplay {
+            margin-top: 2rem;
+        }
+
+        #map {
+            width: 100%;
+            height: 200px;
+            background-color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        #actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        #actions button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #actions button:hover {
+            background-color: #1e88e5;
+        }
+
+        #results {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        #metrics {
+            margin: 1rem 0;
+        }
+
+        #restart {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #restart:hover {
+            background-color: #d32f2f;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Earth Architects</h1>
+        <p>Solve real-world challenges to shape a sustainable future!</p>
+    </header>
+
+    <main>
+        <section id="scenario-selection">
+            <h2>Select a Challenge</h2>
+            <div class="scenarios">
+                <button class="scenario" data-scenario="climate-change">Climate Change</button>
+                <button class="scenario" data-scenario="urban-planning">Urban Planning</button>
+                <button class="scenario" data-scenario="water-crisis">Water Crisis</button>
+            </div>
+        </section>
+
+        <section id="gameplay" class="hidden">
+            <h2 id="scenario-title">Challenge Title</h2>
+            <div id="map"></div>
+            <div id="actions">
+                <button id="action-1">Action 1</button>
+                <button id="action-2">Action 2</button>
+                <button id="action-3">Action 3</button>
+            </div>
+        </section>
+
+        <section id="results" class="hidden">
+            <h2>Results</h2>
+            <p id="results-summary">Your impact on the world is summarized below:</p>
+            <div id="metrics">
+                <p>Environmental Score: <span id="env-score">0</span></p>
+                <p>Economic Score: <span id="econ-score">0</span></p>
+                <p>Social Score: <span id="social-score">0</span></p>
+            </div>
+            <button id="restart">Try Another Challenge</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Earth Architects</p>
+    </footer>
+
+    <script>
+        const scenarioSelection = document.getElementById('scenario-selection');
+        const gameplay = document.getElementById('gameplay');
+        const results = document.getElementById('results');
+        const scenarioTitle = document.getElementById('scenario-title');
+        const envScoreEl = document.getElementById('env-score');
+        const econScoreEl = document.getElementById('econ-score');
+        const socialScoreEl = document.getElementById('social-score');
+        const restartBtn = document.getElementById('restart');
+
+        const scenarios = {
+            'climate-change': {
+                title: 'Climate Change',
+                actions: [
+                    { text: 'Plant Trees', effect: { env: 10, econ: -2, social: 5 } },
+                    { text: 'Switch to Solar Energy', effect: { env: 15, econ: -10, social: 8 } },
+                    { text: 'Implement Recycling Programs', effect: { env: 8, econ: -3, social: 10 } }
+                ]
+            },
+            'urban-planning': {
+                title: 'Urban Planning',
+                actions: [
+                    { text: 'Build Parks', effect: { env: 10, econ: -5, social: 12 } },
+                    { text: 'Upgrade Public Transport', effect: { env: 12, econ: -8, social: 10 } },
+                    { text: 'Reduce Building Density', effect: { env: 5, econ: -2, social: 7 } }
+                ]
+            },
+            'water-crisis': {
+                title: 'Water Crisis',
+                actions: [
+                    { text: 'Install Rainwater Harvesting', effect: { env: 10, econ: -5, social: 8 } },
+                    { text: 'Promote Water Conservation', effect: { env: 7, econ: -3, social: 6 } },
+                    { text: 'Improve Irrigation Efficiency', effect: { env: 8, econ: -6, social: 9 } }
+                ]
+            }
+        };
+
+        document.querySelectorAll('.scenario').forEach(button => {
+            button.addEventListener('click', () => {
+                const selectedScenario = button.getAttribute('data-scenario');
+                startScenario(selectedScenario);
+            });
+        });
+
+        function startScenario(scenarioKey) {
+            const scenario = scenarios[scenarioKey];
+            scenarioSelection.classList.add('hidden');
+            gameplay.classList.remove('hidden');
+            scenarioTitle.textContent = scenario.title;
+
+            const actionsContainer = document.getElementById('actions');
+            actionsContainer.innerHTML = '';
+
+            scenario.actions.forEach((action, index) => {
+                const actionButton = document.createElement('button');
+                actionButton.textContent = action.text;
+                actionButton.addEventListener('click', () => applyAction(action.effect));
+                actionsContainer.appendChild(actionButton);
+            });
+        }
+
+        let scores = { env: 0, econ: 0, social: 0 };
+
+        function applyAction(effect) {
+            scores.env += effect.env;
+            scores.econ += effect.econ;
+            scores.social += effect.social;
+
+            gameplay.classList.add('hidden');
+            results.classList.remove('hidden');
+
+            envScoreEl.textContent = scores.env;
+            econScoreEl.textContent = scores.econ;
+            socialScoreEl.textContent = scores.social;
+        }
+
+        restartBtn.addEventListener('click', () => {
+            scores = { env: 0, econ: 0, social: 0 };
+            results.classList.add('hidden');
+            scenarioSelection.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
